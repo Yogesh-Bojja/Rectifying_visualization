@@ -1,0 +1,95 @@
+---
+title: "Assignment 2"
+subtitle: "Deconstruct, Reconstruct Web Report"
+author: "Yogesh Haresh Bojja (s3789918)"
+output: html_document
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+# Do not change these settings!
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+### {.tabset} 
+
+#### Original
+
+<br>
+<center>
+<img src="pie_chart.jpg" width="80%">
+</center>
+<center>*Source: ("Floral Statistics of India 2018", 2021)*</center>
+<br>
+
+**Objective**
+
+The primary objective of the original data visualisation is to give statistical insights regarding the threat caused to all the plant species/ algae to the researchers and environmental activists who are working to replenish endangered species. Targeted audience for this visualisation are Botanists, Phytologists, Environmental activists and plant researchers who are related to Phycology.
+
+The visualisation chosen had the following three main issues:
+
+* Problems of pie chart - Pie chart uses 'area' and 'angle' to represent proportion. 'Area' and 'angle' performs poor when there is similarity in the wedges and they are inferior to 'position' in terms of precision. Therefore, we will convert the above pie chart into bar graph.
+* Color issues - 3D visualisation is cheap visualisation technique as it may decieve the viewers perception and is unnecessary. For example, 3D Chart above has made yellow colour difficult to distinguish from  green color. Along with yellow, blue color is also difficult to distinguish from other blue shades. Therefore, converting the 3D figure to 2D and maintaining single color accross the visualisation becomes necessary. Hence, we will give red color to the bar chart as it is perfect to represent threat.
+* Bad title and legend - The original data visualisation does not have title and even fullform of the abbreviation in legends are unknown. Rather than giving title in the visualisation they have mentioned it in the web page just before the original visualisation. Title given in the web page is also incorrect as the data is related to the year 2018 but mistakenly they have mentioned it for year 2017. 
+
+**Reference**
+
+* Floral Statistics of India 2018. (2021). Retrieved 1 May 2021, from http://www.bsienvis.nic.in/Database/Floral_Statistics_of_India_2018_26352.aspx
+
+#### Code
+
+```{r}
+library(dplyr)
+library(rvest)
+library(ggplot2)
+
+# Reading data from the source and converting it to dataframe
+url = "http://www.bsienvis.nic.in/Database/Floral_Statistics_of_India_2018_26352.aspx"
+data = read_html(url)
+table = data %>% html_nodes(".MsoNormalTable") %>% html_table() %>% .[[2]]
+x = as.data.frame(table)
+names(x) <- x[1,]
+x <- x[2:10,]
+convert_to_numeric = function(a){
+  as.numeric(gsub(",", "", a))
+}
+
+x["IUCN Red List version 2018-2"] <- lapply(x["IUCN Red List version 2018-2"], convert_to_numeric)
+
+# Plotting data by GGplot
+figure = ggplot(x, aes(x= reorder(Categories, `IUCN Red List version 2018-2`), y = `IUCN Red List version 2018-2`, fill = "IUCN Red List version 2018-2")) + 
+  geom_bar(stat = "identity", position = "identity") + 
+  geom_text(aes(label = `IUCN Red List version 2018-2`), hjust= 1.5)+
+  scale_fill_manual(values=c("#e60000"), guide = FALSE) +
+  labs (title = "CATEGORY-WISE THREAT STATUS OF PLANT SPECIES & ALGAE",
+        y="IUCN Red List version 2018-2",
+        x="Categories",
+        subtitle="World Report(2018)",
+        caption='Source: ("Floral Statistics of India 2018", 2021)')+
+  coord_flip()+
+  theme_bw()+
+  theme(axis.text.x= element_text(size = rel(1), colour = "black"),
+        axis.text.y= element_text(size = rel(1), colour = "black"),
+        panel.border = element_blank(),
+        axis.line= element_line(colour="black"))
+
+#Saving chart 
+ggsave(figure, filename = "chart.png", width = 12, height = 6)
+```
+
+**Data Reference**
+
+* Floral Statistics of India 2018. (2021). Retrieved 1 May 2021, from http://www.bsienvis.nic.in/Database/Floral_Statistics_of_India_2018_26352.aspx
+
+#### Reconstruction
+
+
+
+```{r fig.align="center", echo = FALSE}
+
+
+```
+<center>
+<img src="chart.png" width="100%">
+</center>
+
